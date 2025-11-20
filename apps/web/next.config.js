@@ -4,12 +4,12 @@ const nextConfig = {
   swcMinify: true,
   // Enable static export for deployment
   output: 'standalone',
-  // API proxy for development
+  // API proxy for development - only proxy /api routes, not root
   async rewrites() {
     return [
       {
         source: '/api/:path*',
-        destination: process.env.API_URL || 'http://localhost:3001/api/:path*',
+        destination: (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001') + '/api/:path*',
       },
     ];
   },

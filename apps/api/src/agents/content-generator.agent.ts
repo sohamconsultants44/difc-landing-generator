@@ -3,77 +3,68 @@ import { CampaignInput } from '../../../../packages/shared/src/validation.js';
 
 export class ContentGeneratorAgent {
   async generateHeadline(context: CampaignInput): Promise<string> {
-    const systemPrompt = `You are an expert copywriter creating compelling headlines for landing pages.`;
+    const systemPrompt = `Expert copywriter. Create compelling headlines.`;
 
-    const prompt = `Generate a compelling headline for a landing page with the following context:
+    // SHORTER, MORE FOCUSED PROMPT
+    const prompt = `Headline for: ${context.productServiceName}
+Value: ${context.uniqueValueProposition}
+Audience: ${context.targetAudience}
+Tone: ${context.toneOfVoice}
+Objective: ${context.campaignObjective}
 
-Campaign Objective: ${context.campaignObjective}
-Product/Service: ${context.productServiceName}
-Unique Value Proposition: ${context.uniqueValueProposition}
-Target Audience: ${context.targetAudience}
-Tone of Voice: ${context.toneOfVoice}
+One compelling headline (max 10 words).`;
 
-Generate a headline that:
-1. Captures attention immediately
-2. Communicates the value proposition
-3. Appeals to the target audience
-4. Matches the tone of voice
-5. Is optimized for conversion
-
-Return only the headline, no additional text.`;
-
-    const headline = await llmService.generate(prompt, systemPrompt);
-    return headline.trim();
+    try {
+      const headline = await llmService.generate(prompt, systemPrompt, 40000); // 40s timeout
+      return headline.trim().split('\n')[0].replace(/^["']|["']$/g, ''); // Take first line, remove quotes
+    } catch (error) {
+      // FALLBACK: Use input-based headline if LLM fails
+      console.warn('Headline generation failed, using fallback:', error);
+      return `${context.uniqueValueProposition} - ${context.productServiceName}`;
+    }
   }
 
   async generateBodyCopy(context: CampaignInput): Promise<string> {
-    const systemPrompt = `You are an expert copywriter creating persuasive body copy for landing pages.`;
+    const systemPrompt = `Expert copywriter. Create persuasive body copy.`;
 
-    const prompt = `Generate compelling body copy for a landing page:
+    // SHORTER PROMPT - Focus on essentials
+    const prompt = `Body copy for: ${context.productServiceName}
+Offer: ${context.primaryOffer}
+Benefits: ${context.top3To5Benefits.slice(0, 3).join(', ')}
+Tone: ${context.toneOfVoice}
 
-Product/Service: ${context.productServiceName}
-Primary Offer: ${context.primaryOffer}
-Top Benefits: ${context.top3To5Benefits.join(', ')}
-Features: ${context.featureList.join(', ')}
-Emotional Triggers: ${context.emotionalTriggers.join(', ')}
-Objections to Overcome: ${context.objectionsToOvercome.join(', ')}
-Tone of Voice: ${context.toneOfVoice}
+2-3 short paragraphs (max 150 words).`;
 
-Generate body copy that:
-1. Clearly explains the value proposition
-2. Highlights key benefits
-3. Addresses common objections
-4. Uses emotional triggers appropriately
-5. Maintains the specified tone
-6. Is scannable and engaging
-
-Return the body copy only.`;
-
-    const bodyCopy = await llmService.generate(prompt, systemPrompt);
-    return bodyCopy.trim();
+    try {
+      const bodyCopy = await llmService.generate(prompt, systemPrompt, 50000); // 50s timeout
+      return bodyCopy.trim();
+    } catch (error) {
+      // FALLBACK: Use structured content if LLM fails
+      console.warn('Body copy generation failed, using fallback:', error);
+      return `${context.primaryOffer}\n\n${context.top3To5Benefits.slice(0, 3).map(b => `• ${b}`).join('\n')}\n\n${context.uniqueValueProposition}`;
+    }
   }
 
   async generateCTA(context: CampaignInput, ctaType: 'primary' | 'secondary'): Promise<string> {
-    const systemPrompt = `You are an expert copywriter creating effective call-to-action buttons.`;
+    const systemPrompt = `Expert copywriter. Create effective CTAs.`;
 
     const ctaText = ctaType === 'primary' ? context.primaryCTAText : context.secondaryCTAText;
 
-    const prompt = `Optimize this CTA text for maximum conversion:
+    // VERY SHORT PROMPT - CTAs should be quick
+    const prompt = `Optimize CTA: "${ctaText}"
+Objective: ${context.campaignObjective}
+Tone: ${context.toneOfVoice}
 
-Original CTA: ${ctaText}
-Campaign Objective: ${context.campaignObjective}
-Tone of Voice: ${context.toneOfVoice}
+One optimized CTA (max 5 words).`;
 
-Create an optimized CTA that:
-1. Creates urgency or desire
-2. Is action-oriented
-3. Is clear and concise (max 5 words)
-4. Matches the tone
-
-Return only the optimized CTA text.`;
-
-    const optimizedCTA = await llmService.generate(prompt, systemPrompt);
-    return optimizedCTA.trim();
+    try {
+      const optimizedCTA = await llmService.generate(prompt, systemPrompt, 30000); // 30s timeout
+      return optimizedCTA.trim().split('\n')[0].replace(/["']/g, ''); // Clean up quotes
+    } catch (error) {
+      // FALLBACK: Use original CTA if LLM fails
+      console.warn('CTA generation failed, using fallback:', error);
+      return ctaText || 'Get Started';
+    }
   }
 
   async generateTestimonial(context: CampaignInput): Promise<string> {

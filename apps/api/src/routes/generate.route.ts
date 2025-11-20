@@ -71,37 +71,68 @@ const CampaignInputSchema = z.object({
 const router = Router();
 
 router.post('/', async (req, res) => {
+  const startTime = Date.now();
+  
+  // Set overall timeout for the entire request (3 minutes - increased for reliability)
+  const requestTimeout = setTimeout(() => {
+    if (!res.headersSent) {
+      res.status(504).json({
+        error: 'Request timeout',
+        message: 'Generation took longer than 3 minutes. Some steps may have failed, but partial results may be available.',
+        elapsedTime: Math.floor((Date.now() - startTime) / 1000),
+      });
+    }
+  }, 180000); // 3 minutes (increased for reliability with fallbacks)
+
   try {
+    console.log('[Generate] Starting generation request...');
+    
     // Validate input
     const validatedInput = CampaignInputSchema.parse(req.body);
+    console.log('[Generate] Input validated, starting workflow...');
 
     // Execute workflow
     const workflow = new LandingPageWorkflow();
     const result = await workflow.execute(validatedInput);
 
+    clearTimeout(requestTimeout);
+
+    const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+    console.log(`[Generate] Workflow completed in ${elapsedTime}s`);
+
     if (result.errors && result.errors.length > 0) {
+      console.log(`[Generate] Completed with ${result.errors.length} error(s)`);
       return res.status(500).json({
         error: 'Generation completed with errors',
         errors: result.errors,
         result,
+        elapsedTime,
       });
     }
 
     res.json({
       success: true,
       result,
+      elapsedTime,
     });
   } catch (error) {
+    clearTimeout(requestTimeout);
+    const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+    console.error('[Generate] Error:', error);
+
     if (error instanceof Error && error.name === 'ZodError') {
       return res.status(400).json({
         error: 'Invalid input',
         details: error,
+        elapsedTime,
       });
     }
 
     return res.status(500).json({
       error: 'Failed to generate landing page',
       message: error instanceof Error ? error.message : 'Unknown error',
+      elapsedTime,
+      troubleshooting: 'Check if Ollama is running: ollama list. Check API server logs for details.',
     });
   }
 });

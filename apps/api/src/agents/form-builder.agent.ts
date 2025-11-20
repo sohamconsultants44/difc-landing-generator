@@ -16,35 +16,74 @@ export interface FormSchema {
 
 export class FormBuilderAgent {
   async generateFormSchema(fields: FormField[], apiConfig?: { endpoint: string; method: string }): Promise<FormSchema> {
-    const systemPrompt = `You are an expert React developer creating accessible, GDPR-compliant forms.`;
+    const systemPrompt = `Expert React developer. Create accessible GDPR forms.`;
 
-    const prompt = `Generate a React form component with the following fields:
+    // SIMPLIFIED - Only send essential field info
+    const fieldsSummary = fields.map(f => ({
+      name: f.name,
+      type: f.type,
+      required: f.required,
+      label: f.label,
+    }));
 
-Fields:
-${JSON.stringify(fields, null, 2)}
+    const prompt = `React form component:
+Fields: ${JSON.stringify(fieldsSummary)}
+${apiConfig ? `API: ${apiConfig.endpoint} (${apiConfig.method})` : ''}
 
-${apiConfig ? `API Config: ${JSON.stringify(apiConfig)}` : ''}
+Return JSON:
+- component: React functional component code (TypeScript, Tailwind CSS, React Hook Form)
+- validationRules: {fieldName: {required, pattern, minLength, maxLength}}
+- apiEndpoint: "${apiConfig?.endpoint || ''}"
+- gdprCompliant: true
 
-Create a form component that:
-1. Uses React Hook Form or similar for validation
-2. Includes proper error handling
-3. Is accessible (WCAG 2.1 AA)
-4. Includes GDPR consent checkbox
-5. Has proper labels and placeholders
-6. Validates all fields according to their rules
-7. Handles form submission
-8. Shows loading and success states
+Keep component concise (<150 lines).`;
 
-Return JSON with:
-- component: React component code as string
-- validationRules: Object mapping field names to validation rules
-- apiEndpoint: API endpoint if provided
-- gdprCompliant: boolean indicating GDPR compliance
+    try {
+      const schema = await llmService.generateJSON<FormSchema>(prompt, systemPrompt, 50000); // 50s timeout
+      return schema;
+    } catch (error) {
+      // FALLBACK: Generate basic form schema without LLM
+      console.warn('Form generation LLM failed, using fallback:', error);
+      const validationRules: Record<string, any> = {};
+      fields.forEach(field => {
+        validationRules[field.name] = {
+          required: field.required,
+          ...(field.validation || {}),
+        };
+        if (field.type === 'email') {
+          validationRules[field.name].pattern = '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$';
+        }
+      });
 
-Component should use TypeScript and Tailwind CSS.`;
+      const formFieldsCode = fields.map(f => 
+        `<div className="mb-4">
+          <label className="block text-sm font-medium mb-1">{f.label}${f.required ? ' *' : ''}</label>
+          <input type="${f.type}" name="${f.name}" required={${f.required}} className="w-full px-4 py-2 border rounded" />
+        </div>`
+      ).join('\n');
 
-    const schema = await llmService.generateJSON<FormSchema>(prompt, systemPrompt);
-    return schema;
+      return {
+        component: `export function LandingPageForm() {
+  return (
+    <form className="max-w-md mx-auto p-6 bg-white rounded-lg shadow">
+      ${formFieldsCode}
+      <div className="mb-4">
+        <label className="flex items-center">
+          <input type="checkbox" required className="mr-2" />
+          <span className="text-sm">I agree to the privacy policy</span>
+        </label>
+      </div>
+      <button type="submit" className="w-full px-6 py-3 bg-blue-600 text-white rounded font-semibold">
+        Submit
+      </button>
+    </form>
+  );
+}`,
+        validationRules,
+        apiEndpoint: apiConfig?.endpoint,
+        gdprCompliant: true,
+      };
+    }
   }
 
   async createValidationRules(field: FormField): Promise<{

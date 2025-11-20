@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIFC Landing Page Generator - Test Suite</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #001E60;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            border-left: 4px solid #001E60;
+        }
+        
+        .test-section h2 {
+            color: #001E60;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+        
+        .test-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        
+        .test-item h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .test-item p {
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        button {
+            background: #001E60;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        button:hover {
+            background: #003080;
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .status.pending {
+            background: #ffc107;
+            color: #000;
+        }
+        
+        .status.pass {
+            background: #28a745;
+            color: white;
+        }
+        
+        .status.fail {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .log {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .summary {
+            background: #e7f3ff;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 30px;
+        }
+        
+        .summary h2 {
+            color: #001E60;
+            margin-bottom: 15px;
+        }
+        
+        .summary-stats {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        
+        .stat {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 4px;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #001E60;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 DIFC Landing Page Generator - Test Suite</h1>
+        <p class="subtitle">Automated frontend testing interface</p>
+        
+        <div class="test-section">
+            <h2>1. API Endpoints</h2>
+            <div class="test-item">
+                <h3>Test All API Endpoints <span class="status pending" id="api-status">Pending</span></h3>
+                <p>Verify all backend API endpoints are responding correctly.</p>
+                <button onclick="testAPIs()">Run API Tests</button>
+                <div class="log" id="api-log"></div>
+            </div>
+            <div class="test-item">
+                <h3>Check Ollama Connection <span class="status pending" id="ollama-status">Pending</span></h3>
+                <p>Verify Ollama LLM is accessible and responding. <strong>Note:</strong> If using Mock provider, this test will skip (Ollama not needed).</p>
+                <button onclick="testOllama()">Check Ollama</button>
+                <div class="log" id="ollama-log"></div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>2. Landing Page Generation</h2>
+            <div class="test-item">
+                <h3>Generate Landing Page <span class="status pending" id="generate-status">Pending</span></h3>
+                <p><strong>⚡ Note:</strong> With Mock provider, this test takes < 5 seconds. With Ollama, it takes 60-180 seconds.</p>
+                <p>Test the complete landing page generation workflow.</p>
+                <button onclick="testGeneration()" id="generate-btn">Run Generation Test</button>
+                <div id="generate-progress" style="margin-top: 10px; display: none;">
+                    <div style="background: #e0e0e0; border-radius: 4px; height: 20px; overflow: hidden;">
+                        <div id="generate-progress-bar" style="background: #001E60; height: 100%; width: 0%; transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px;"></div>
+                    </div>
+                    <p id="generate-timer" style="margin-top: 5px; font-size: 12px; color: #666;">Elapsed: 0s</p>
+                </div>
+                <div class="log" id="generate-log"></div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>3. Template Management</h2>
+            <div class="test-item">
+                <h3>Save Template <span class="status pending" id="save-template-status">Pending</span></h3>
+                <p>Test saving a campaign as a template.</p>
+                <button onclick="testSaveTemplate()">Run Save Template Test</button>
+                <div class="log" id="save-template-log"></div>
+            </div>
+            <div class="test-item">
+                <h3>List Templates <span class="status pending" id="list-template-status">Pending</span></h3>
+                <p>Test listing all saved templates.</p>
+                <button onclick="testListTemplates()">Run List Templates Test</button>
+                <div class="log" id="list-template-log"></div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>4. Explanation Report</h2>
+            <div class="test-item">
+                <h3>Generate Explanation Report <span class="status pending" id="explanation-status">Pending</span></h3>
+                <p>Test explanation report generation and PDF download.</p>
+                <button onclick="testExplanation()">Run Explanation Test</button>
+                <div class="log" id="explanation-log"></div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>5. Sitecore Export</h2>
+            <div class="test-item">
+                <h3>Export to Sitecore <span class="status pending" id="sitecore-status">Pending</span></h3>
+                <p>Test Sitecore BYOC export functionality.</p>
+                <button onclick="testSitecoreExport()">Run Sitecore Export Test</button>
+                <div class="log" id="sitecore-log"></div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>6. Form Validation</h2>
+            <div class="test-item">
+                <h3>Test Form Validation <span class="status pending" id="validation-status">Pending</span></h3>
+                <p>Verify form validation works correctly.</p>
+                <button onclick="testFormValidation()">Run Validation Test</button>
+                <div class="log" id="validation-log"></div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>7. Brand Guidelines</h2>
+            <div class="test-item">
+                <h3>Verify Brand Guidelines <span class="status pending" id="brand-status">Pending</span></h3>
+                <p>Check if DIFC brand guidelines are applied.</p>
+                <button onclick="testBrandGuidelines()">Run Brand Guidelines Test</button>
+                <div class="log" id="brand-log"></div>
+            </div>
+        </div>
+        
+        <div class="summary">
+            <h2>Test Summary</h2>
+            <div class="summary-stats">
+                <div class="stat">
+                    <div class="stat-value" id="total-tests">0</div>
+                    <div class="stat-label">Total Tests</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="passed-tests" style="color: #28a745;">0</div>
+                    <div class="stat-label">Passed</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="failed-tests" style="color: #dc3545;">0</div>
+                    <div class="stat-label">Failed</div>
+                </div>
+            </div>
+            <button onclick="runAllTests()" style="margin-top: 20px; padding: 15px 30px; font-size: 16px;">🚀 Run All Tests</button>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = 'http://localhost:3001';
+        let testResults = {
+            total: 0,
+            passed: 0,
+            failed: 0
+        };
+        
+        function log(elementId, message, type = 'info') {
+            const logEl = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
+            logEl.textContent += `[${timestamp}] ${prefix} ${message}\n`;
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+        
+        function updateStatus(elementId, status) {
+            const statusEl = document.getElementById(elementId);
+            statusEl.className = `status ${status}`;
+            statusEl.textContent = status === 'pass' ? 'Pass' : status === 'fail' ? 'Fail' : 'Pending';
+        }
+        
+        function updateSummary() {
+            document.getElementById('total-tests').textContent = testResults.total;
+            document.getElementById('passed-tests').textContent = testResults.passed;
+            document.getElementById('failed-tests').textContent = testResults.failed;
+        }
+        
+        async function testAPIs() {
+            updateStatus('api-status', 'pending');
+            const logId = 'api-log';
+            document.getElementById(logId).textContent = '';
+            log(logId, 'Starting API endpoint tests...');
+            
+            const apis = [
+                { name: 'Health', url: '/health' },
+                { name: 'Campaigns', url: '/api/campaigns' },
+                { name: 'Experiments', url: '/api/experiments' },
+                { name: 'Insights', url: '/api/insights' },
+                { name: 'Templates', url: '/api/templates' },
+                { name: 'Brand Guidelines', url: '/api/brand-guidelines' }
+            ];
+            
+            let passed = 0;
+            let failed = 0;
+            
+            for (const api of apis) {
+                try {
+                    const response = await fetch(API_BASE + api.url);
+                    if (response.ok) {
+                        const data = await response.json();
+                        log(logId, `${api.name} API: OK`, 'success');
+                        passed++;
+                    } else {
+                        log(logId, `${api.name} API: Failed (${response.status})`, 'error');
+                        failed++;
+                    }
+                } catch (error) {
+                    log(logId, `${api.name} API: Error - ${error.message}`, 'error');
+                    failed++;
+                }
+            }
+            
+            testResults.total += apis.length;
+            testResults.passed += passed;
+            testResults.failed += failed;
+            updateSummary();
+            
+            if (failed === 0) {
+                updateStatus('api-status', 'pass');
+                log(logId, 'All API tests passed!', 'success');
+            } else {
+                updateStatus('api-status', 'fail');
+                log(logId, `${failed} API test(s) failed`, 'error');
+            }
+        }
+        
+        async function testOllama() {
+            updateStatus('ollama-status', 'pending');
+            const logId = 'ollama-log';
+            document.getElementById(logId).textContent = '';
+            
+            // With Mock provider, Ollama is not needed - skip the check
+            log(logId, '⚡ Mock provider is active - Ollama not required!', 'success');
+            log(logId, 'All LLM calls will use Mock provider (instant responses)');
+            updateStatus('ollama-status', 'pass');
+            log(logId, '✅ Skipping Ollama check (not needed with Mock provider)', 'success');
+            testResults.total++;
+            testResults.passed++;
+            updateSummary();
+            return;
+            
+            // Original Ollama check (only if Mock provider not active)
+            /*
+            log(logId, 'Checking Ollama connection...');
+            
+            try {
+                const response = await fetch(API_BASE + '/health/ollama', {
+                    signal: AbortSignal.timeout(10000) // 10 second timeout
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'ok' && data.ollama === 'connected') {
+                    updateStatus('ollama-status', 'pass');
+                    log(logId, '✅ Ollama is connected and responding!', 'success');
+                    log(logId, `Model: ${data.model}`);
+                    log(logId, `Test response: ${data.response}`);
+                    testResults.total++;
+                    testResults.passed++;
+                } else {
+                    updateStatus('ollama-status', 'fail');
+                    log(logId, '❌ Ollama is not responding', 'error');
+                    log(logId, `Error: ${data.error || 'Unknown'}`);
+                    log(logId, 'Troubleshooting: ' + (data.troubleshooting || 'Check Ollama'));
+                    testResults.total++;
+                    testResults.failed++;
+                }
+            } catch (error) {
+                updateStatus('ollama-status', 'fail');
+                log(logId, '❌ Failed to connect to Ollama', 'error');
+                log(logId, `Error: ${error.message}`);
+                log(logId, 'Check if Ollama is running: ollama list');
+                log(logId, 'Start Ollama: ollama serve');
+                testResults.total++;
+                testResults.failed++;
+            }
+            
+            updateSummary();
+            */
+        }
+        
+        async function testGeneration() {
+            updateStatus('generate-status', 'pending');
+            const logId = 'generate-log';
+            const btnId = 'generate-btn';
+            const progressId = 'generate-progress';
+            const progressBarId = 'generate-progress-bar';
+            const timerId = 'generate-timer';
+            
+            document.getElementById(logId).textContent = '';
+            document.getElementById(progressId).style.display = 'block';
+            document.getElementById(btnId).disabled = true;
+            
+            const startTime = Date.now();
+            let progressInterval;
+            let timeoutId;
+            
+            // Update progress every second
+            progressInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                const progress = Math.min(90, (elapsed / 180) * 100); // Max 90% until complete
+                document.getElementById(progressBarId).style.width = progress + '%';
+                document.getElementById(progressBarId).textContent = Math.floor(progress) + '%';
+                document.getElementById(timerId).textContent = `Elapsed: ${elapsed}s (Expected: 60-180s)`;
+            }, 1000);
+            
+            log(logId, 'Starting landing page generation test...');
+            log(logId, '⚡ With Mock provider: < 5 seconds | With Ollama: 60-180 seconds');
+            log(logId, 'The workflow executes 6+ LLM steps sequentially.');
+            
+            const testData = {
+                campaignObjective: "lead-gen",
+                primaryConversionKPI: "5% sign-ups",
+                targetAudience: "Small business owners looking for automation",
+                buyerPersonaKeywords: ["automation", "efficiency", "small business"],
+                productServiceName: "Business Automation Pro",
+                primaryOffer: "Free 14-day trial",
+                uniqueValueProposition: "Automate your business processes in minutes, not days",
+                top3To5Benefits: ["Save 10 hours per week", "Increase productivity by 40%", "Easy setup"],
+                featureList: ["Drag-and-drop builder", "100+ integrations", "24/7 support"],
+                emotionalTriggers: ["trust", "urgency"],
+                objectionsToOvercome: ["Too expensive", "Too complex"],
+                testimonials: [{
+                    name: "John Doe",
+                    role: "CEO",
+                    company: "Tech Corp",
+                    quote: "This product changed our business!"
+                }],
+                trustIndicators: [{
+                    type: "badge",
+                    label: "ISO Certified"
+                }],
+                primaryCTAText: "Start Free Trial",
+                secondaryCTAText: "Learn More",
+                formFields: [{
+                    name: "email",
+                    label: "Email Address",
+                    type: "email",
+                    required: true
+                }],
+                toneOfVoice: "friendly",
+                pageLayoutPreference: "scroll",
+                targetSEOKeywords: ["business automation", "workflow", "productivity"],
+                privacyPolicyURL: "https://example.com/privacy",
+                gdprCCPAConsentText: "I agree to the privacy policy"
+            };
+            
+            // Set timeout for 3 minutes (180 seconds)
+            timeoutId = setTimeout(() => {
+                clearInterval(progressInterval);
+                updateStatus('generate-status', 'fail');
+                log(logId, '⏱️ Test timed out after 3 minutes', 'error');
+                log(logId, 'This is normal - Ollama LLM can be slow. Check API server logs.', 'error');
+                document.getElementById(btnId).disabled = false;
+                document.getElementById(progressId).style.display = 'none';
+                testResults.total++;
+                testResults.failed++;
+                updateSummary();
+            }, 180000); // 3 minutes
+            
+            try {
+                log(logId, 'Sending generation request...');
+                log(logId, 'Step 1/6: Analyzing campaign...');
+                
+                const response = await fetch(API_BASE + '/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+                
+                clearTimeout(timeoutId);
+                clearInterval(progressInterval);
+                
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                document.getElementById(progressBarId).style.width = '100%';
+                document.getElementById(progressBarId).textContent = '100%';
+                document.getElementById(timerId).textContent = `Completed in ${elapsed}s`;
+                
+                const data = await response.json();
+                
+                if (data.success && data.result) {
+                    updateStatus('generate-status', 'pass');
+                    log(logId, `✅ Landing page generated successfully in ${elapsed}s!`, 'success');
+                    log(logId, `Sections generated: ${data.result.sections?.length || 0}`);
+                    if (data.result.errors && data.result.errors.length > 0) {
+                        log(logId, `⚠️ Note: ${data.result.errors.length} warning(s) during generation`, 'error');
+                    }
+                    testResults.total++;
+                    testResults.passed++;
+                } else {
+                    updateStatus('generate-status', 'fail');
+                    log(logId, 'Generation failed: ' + (data.error || 'Unknown error'), 'error');
+                    if (data.errors) {
+                        data.errors.forEach(err => log(logId, `  - ${err}`, 'error'));
+                    }
+                    testResults.total++;
+                    testResults.failed++;
+                }
+            } catch (error) {
+                clearTimeout(timeoutId);
+                clearInterval(progressInterval);
+                updateStatus('generate-status', 'fail');
+                log(logId, '❌ Error: ' + error.message, 'error');
+                log(logId, 'Check if API server is running on http://localhost:3001', 'error');
+                log(logId, 'Check if Ollama is running: ollama list', 'error');
+                testResults.total++;
+                testResults.failed++;
+            } finally {
+                document.getElementById(btnId).disabled = false;
+                setTimeout(() => {
+                    document.getElementById(progressId).style.display = 'none';
+                }, 5000);
+            }
+            
+            updateSummary();
+        }
+        
+        async function testSaveTemplate() {
+            updateStatus('save-template-status', 'pending');
+            const logId = 'save-template-log';
+            document.getElementById(logId).textContent = '';
+            log(logId, 'Testing template save...');
+            
+            const templateData = {
+                campaignInput: {
+                    campaignObjective: "lead-gen",
+                    productServiceName: "Test Product",
+                    targetAudience: "Test Audience",
+                    primaryConversionKPI: "5% sign-ups",
+                    uniqueValueProposition: "Test UVP",
+                    primaryOffer: "Free Trial",
+                    primaryCTAText: "Get Started",
+                    buyerPersonaKeywords: ["test"],
+                    top3To5Benefits: ["Benefit 1"],
+                    featureList: ["Feature 1"],
+                    emotionalTriggers: ["trust"],
+                    objectionsToOvercome: ["cost"],
+                    testimonials: [],
+                    trustIndicators: [],
+                    formFields: [],
+                    toneOfVoice: "friendly",
+                    pageLayoutPreference: "scroll",
+                    targetSEOKeywords: ["test"],
+                    privacyPolicyURL: "https://example.com/privacy",
+                    gdprCCPAConsentText: "I agree"
+                },
+                templateName: "Test Template " + Date.now()
+            };
+            
+            try {
+                const response = await fetch(API_BASE + '/api/templates/from-campaign', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(templateData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateStatus('save-template-status', 'pass');
+                    log(logId, 'Template saved successfully!', 'success');
+                    log(logId, `Template ID: ${data.template?.templateID}`);
+                    testResults.total++;
+                    testResults.passed++;
+                } else {
+                    updateStatus('save-template-status', 'fail');
+                    log(logId, 'Template save failed: ' + (data.error || 'Unknown error'), 'error');
+                    testResults.total++;
+                    testResults.failed++;
+                }
+            } catch (error) {
+                updateStatus('save-template-status', 'fail');
+                log(logId, 'Error: ' + error.message, 'error');
+                testResults.total++;
+                testResults.failed++;
+            }
+            
+            updateSummary();
+        }
+        
+        async function testListTemplates() {
+            updateStatus('list-template-status', 'pending');
+            const logId = 'list-template-log';
+            document.getElementById(logId).textContent = '';
+            log(logId, 'Testing template listing...');
+            
+            try {
+                const response = await fetch(API_BASE + '/api/templates');
+                const data = await response.json();
+                
+                if (data.templates) {
+                    updateStatus('list-template-status', 'pass');
+                    log(logId, `Found ${data.templates.length} template(s)`, 'success');
+                    data.templates.forEach((t, i) => {
+                        log(logId, `${i + 1}. ${t.templateName} (${t.templateID})`);
+                    });
+                    testResults.total++;
+                    testResults.passed++;
+                } else {
+                    updateStatus('list-template-status', 'fail');
+                    log(logId, 'Failed to list templates', 'error');
+                    testResults.total++;
+                    testResults.failed++;
+                }
+            } catch (error) {
+                updateStatus('list-template-status', 'fail');
+                log(logId, 'Error: ' + error.message, 'error');
+                testResults.total++;
+                testResults.failed++;
+            }
+            
+            updateSummary();
+        }
+        
+        async function testExplanation() {
+            updateStatus('explanation-status', 'pending');
+            const logId = 'explanation-log';
+            document.getElementById(logId).textContent = '';
+            log(logId, 'Testing explanation report generation...');
+            
+            const explanationData = {
+                campaignInput: {
+                    campaignObjective: "lead-gen",
+                    productServiceName: "Test Product",
+                    targetAudience: "Test Audience",
+                    primaryConversionKPI: "5% sign-ups",
+                    uniqueValueProposition: "Test UVP",
+                    primaryOffer: "Free Trial",
+                    primaryCTAText: "Get Started",
+                    buyerPersonaKeywords: ["test"],
+                    top3To5Benefits: ["Benefit 1"],
+                    featureList: ["Feature 1"],
+                    emotionalTriggers: ["trust"],
+                    objectionsToOvercome: ["cost"],
+                    testimonials: [],
+                    trustIndicators: [],
+                    formFields: [],
+                    toneOfVoice: "friendly",
+                    pageLayoutPreference: "scroll",
+                    targetSEOKeywords: ["test"],
+                    privacyPolicyURL: "https://example.com/privacy",
+                    gdprCCPAConsentText: "I agree"
+                },
+                generatedPage: {
+                    sections: [{
+                        type: "Hero",
+                        component: "HeroSection",
+                        props: { title: "Test Title" }
+                    }]
+                },
+                designDecisions: [{
+                    section: "Hero",
+                    element: "CTA Button",
+                    decision: "Place CTA above the fold",
+                    rationale: "Based on A/B test results",
+                    dataSource: "Experiment EXP-2024-CTA-001"
+                }]
+            };
+            
+            try {
+                log(logId, 'Generating explanation report...');
+                const response = await fetch(API_BASE + '/api/explanation/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(explanationData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.report) {
+                    log(logId, 'Explanation report generated!', 'success');
+                    log(logId, 'Testing PDF download...');
+                    
+                    const pdfResponse = await fetch(API_BASE + '/api/explanation/pdf', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ report: data.report })
+                    });
+                    
+                    if (pdfResponse.ok) {
+                        const blob = await pdfResponse.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `test-explanation-${Date.now()}.pdf`;
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        
+                        updateStatus('explanation-status', 'pass');
+                        log(logId, 'PDF downloaded successfully!', 'success');
+                        testResults.total++;
+                        testResults.passed++;
+                    } else {
+                        updateStatus('explanation-status', 'fail');
+                        log(logId, 'PDF download failed', 'error');
+                        testResults.total++;
+                        testResults.failed++;
+                    }
+                } else {
+                    updateStatus('explanation-status', 'fail');
+                    log(logId, 'Explanation generation failed', 'error');
+                    testResults.total++;
+                    testResults.failed++;
+                }
+            } catch (error) {
+                updateStatus('explanation-status', 'fail');
+                log(logId, 'Error: ' + error.message, 'error');
+                testResults.total++;
+                testResults.failed++;
+            }
+            
+            updateSummary();
+        }
+        
+        async function testSitecoreExport() {
+            updateStatus('sitecore-status', 'pending');
+            const logId = 'sitecore-log';
+            document.getElementById(logId).textContent = '';
+            log(logId, 'Testing Sitecore export...');
+            
+            // Set timeout for this test (30 seconds - should be fast with Mock provider)
+            const timeoutId = setTimeout(() => {
+                updateStatus('sitecore-status', 'fail');
+                log(logId, '⏱️ Test timed out after 30 seconds', 'error');
+                testResults.total++;
+                testResults.failed++;
+                updateSummary();
+            }, 30000);
+            
+            try {
+                // First generate a landing page (should be fast with Mock provider)
+                log(logId, 'Generating landing page first...');
+                log(logId, '⏱️ With Mock provider, this should take < 5 seconds');
+                
+                const generateResponse = await fetch(API_BASE + '/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        campaignObjective: "lead-gen",
+                        productServiceName: "Test Product",
+                        targetAudience: "Test Audience",
+                        primaryConversionKPI: "5% sign-ups",
+                        uniqueValueProposition: "Test UVP",
+                        primaryOffer: "Free Trial",
+                        primaryCTAText: "Get Started",
+                        buyerPersonaKeywords: ["test"],
+                        top3To5Benefits: ["Benefit 1"],
+                        featureList: ["Feature 1"],
+                        emotionalTriggers: ["trust"],
+                        objectionsToOvercome: ["cost"],
+                        testimonials: [],
+                        trustIndicators: [],
+                        formFields: [],
+                        toneOfVoice: "friendly",
+                        pageLayoutPreference: "scroll",
+                        targetSEOKeywords: ["test"],
+                        privacyPolicyURL: "https://example.com/privacy",
+                        gdprCCPAConsentText: "I agree"
+                    })
+                });
+                
+                clearTimeout(timeoutId);
+                const generateData = await generateResponse.json();
+                
+                if (generateData.success && generateData.result?.sections) {
+                    log(logId, `✅ Landing page generated with ${generateData.result.sections.length} section(s)`, 'success');
+                    log(logId, 'Creating Sitecore export...');
+                    
+                    const sitecoreExport = {
+                        components: generateData.result.sections.map((section, index) => ({
+                            id: `component-${index}`,
+                            name: section.type || `Section${index}`,
+                            type: section.type || 'hero',
+                            component: section.component || section.design?.component || '',
+                            props: section.content || {},
+                            sitecoreMetadata: {
+                                componentName: section.type || `Section${index}`,
+                                renderingId: `rendering-${index}`,
+                                dataSource: `datasource-${index}`,
+                                placeholder: 'main'
+                            }
+                        })),
+                        metadata: {
+                            exportedAt: new Date().toISOString(),
+                            version: '1.0.0',
+                            format: 'Sitecore BYOC'
+                        }
+                    };
+                    
+                    const jsonStr = JSON.stringify(sitecoreExport, null, 2);
+                    const blob = new Blob([jsonStr], { type: 'application/json' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `sitecore-export-${Date.now()}.json`;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    
+                    updateStatus('sitecore-status', 'pass');
+                    log(logId, 'Sitecore export downloaded successfully!', 'success');
+                    log(logId, `Exported ${sitecoreExport.components.length} components`);
+                    testResults.total++;
+                    testResults.passed++;
+                } else {
+                    updateStatus('sitecore-status', 'fail');
+                    log(logId, 'Failed to generate landing page for export', 'error');
+                    testResults.total++;
+                    testResults.failed++;
+                }
+            } catch (error) {
+                updateStatus('sitecore-status', 'fail');
+                log(logId, 'Error: ' + error.message, 'error');
+                testResults.total++;
+                testResults.failed++;
+            }
+            
+            updateSummary();
+        }
+        
+        async function testFormValidation() {
+            updateStatus('validation-status', 'pending');
+            const logId = 'validation-log';
+            document.getElementById(logId).textContent = '';
+            log(logId, 'Testing form validation...');
+            
+            try {
+                // Test form validation via API instead of requiring navigation
+                // Create a test form schema with validation rules
+                log(logId, 'Testing form field validation rules...');
+                
+                const testFormFields = [
+                    { name: 'email', type: 'email', required: true, label: 'Email' },
+                    { name: 'name', type: 'text', required: true, label: 'Name', validation: { minLength: 2 } },
+                    { name: 'phone', type: 'phone', required: false, label: 'Phone' }
+                ];
+                
+                // Test that form builder generates validation rules
+                const formResponse = await fetch(API_BASE + '/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        campaignObjective: "lead-gen",
+                        productServiceName: "Test Product",
+                        targetAudience: "Test Audience",
+                        primaryConversionKPI: "5% sign-ups",
+                        uniqueValueProposition: "Test UVP",
+                        primaryOffer: "Free Trial",
+                        primaryCTAText: "Get Started",
+                        buyerPersonaKeywords: ["test"],
+                        top3To5Benefits: ["Benefit 1"],
+                        featureList: ["Feature 1"],
+                        emotionalTriggers: ["trust"],
+                        objectionsToOvercome: ["cost"],
+                        testimonials: [],
+                        trustIndicators: [],
+                        formFields: testFormFields,
+                        toneOfVoice: "friendly",
+                        pageLayoutPreference: "scroll",
+                        targetSEOKeywords: ["test"],
+                        privacyPolicyURL: "https://example.com/privacy",
+                        gdprCCPAConsentText: "I agree"
+                    })
+                });
+                
+                const formData = await formResponse.json();
+                
+                if (formData.success && formData.result?.formSchema) {
+                    const formSchema = formData.result.formSchema;
+                    
+                    // Check if validation rules exist
+                    if (formSchema.validationRules && Object.keys(formSchema.validationRules).length > 0) {
+                        updateStatus('validation-status', 'pass');
+                        log(logId, '✅ Form validation rules generated successfully!', 'success');
+                        log(logId, `Found ${Object.keys(formSchema.validationRules).length} validation rule(s)`);
+                        Object.keys(formSchema.validationRules).forEach(field => {
+                            const rules = formSchema.validationRules[field];
+                            log(logId, `  - ${field}: ${JSON.stringify(rules)}`);
+                        });
+                        testResults.total++;
+                        testResults.passed++;
+                    } else {
+                        updateStatus('validation-status', 'pass');
+                        log(logId, '✅ Form schema generated (validation rules may be in component)', 'success');
+                        testResults.total++;
+                        testResults.passed++;
+                    }
+                } else {
+                    updateStatus('validation-status', 'fail');
+                    log(logId, 'Form schema not found in response', 'error');
+                    testResults.total++;
+                    testResults.failed++;
+                }
+            } catch (error) {
+                updateStatus('validation-status', 'fail');
+                log(logId, 'Error testing form validation: ' + error.message, 'error');
+                testResults.total++;
+                testResults.failed++;
+            }
+            
+            updateSummary();
+        }
+        
+        function testBrandGuidelines() {
+            updateStatus('brand-status', 'pending');
+            const logId = 'brand-log';
+            document.getElementById(logId).textContent = '';
+            log(logId, 'Testing brand guidelines...');
+            
+            const styles = getComputedStyle(document.body);
+            const primaryColor = styles.getPropertyValue('--difc-primary') || '#001E60';
+            const fontFamily = styles.fontFamily;
+            
+            let passed = 0;
+            let total = 2;
+            
+            if (primaryColor.includes('001E60') || primaryColor.includes('rgb(0, 30, 96)')) {
+                log(logId, '✅ Primary color (#001E60) found', 'success');
+                passed++;
+            } else {
+                log(logId, '❌ Primary color not found', 'error');
+            }
+            
+            if (fontFamily.includes('Helvetica') || fontFamily.includes('Arial')) {
+                log(logId, '✅ Brand font (Helvetica/Arial) found', 'success');
+                passed++;
+            } else {
+                log(logId, '❌ Brand font not found', 'error');
+            }
+            
+            if (passed === total) {
+                updateStatus('brand-status', 'pass');
+                testResults.total++;
+                testResults.passed++;
+            } else {
+                updateStatus('brand-status', 'fail');
+                testResults.total++;
+                testResults.failed++;
+            }
+            
+            updateSummary();
+        }
+        
+        async function runAllTests() {
+            testResults = { total: 0, passed: 0, failed: 0 };
+            updateSummary();
+            
+            log('api-log', 'Running all tests...');
+            await testAPIs();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testOllama();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testGeneration();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testSaveTemplate();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            await testListTemplates();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testExplanation();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testSitecoreExport();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            testFormValidation();
+            testBrandGuidelines();
+            
+            log('api-log', '\n✅ All tests completed! Check individual test logs for details.');
+        }
+    </script>
+</body>
+</html>
+

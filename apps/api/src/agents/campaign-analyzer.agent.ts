@@ -13,22 +13,59 @@ export interface CampaignInsights {
 
 export class CampaignAnalyzerAgent {
   async analyzeCampaignData(campaignData: CampaignData[]): Promise<CampaignInsights> {
-    const systemPrompt = `You are an expert campaign analyst. Analyze campaign data and provide actionable insights.`;
+    // SKIP LLM if no data - return default insights
+    if (!campaignData || campaignData.length === 0) {
+      console.log('No campaign data provided, returning default insights');
+      return {
+        topPerformingLayouts: ['single-column', 'two-column'],
+        deviceSpecificPatterns: { mobile: 'compact', desktop: 'spacious' },
+        conversionRateBenchmarks: { average: 5.0, top10Percent: 12.0 },
+        recommendations: ['Focus on mobile-first design', 'A/B test CTAs', 'Optimize form length'],
+      };
+    }
 
-    const prompt = `Analyze the following campaign data and provide insights:
-    
-${JSON.stringify(campaignData, null, 2)}
+    const systemPrompt = `Expert campaign analyst. Quick analysis.`;
 
-Provide insights on:
-1. Top performing layouts
-2. Device-specific patterns
-3. Conversion rate benchmarks
-4. Actionable recommendations
+    // SHORTER PROMPT - Only analyze first 5 campaigns
+    const dataSample = campaignData.slice(0, 5);
+    const prompt = `Analyze campaign data:
+${JSON.stringify(dataSample.map(d => ({ 
+  campaignName: d.campaignName, 
+  conversionRate: d.conversionRate, 
+  deviceType: d.deviceType,
+  bounceRate: d.bounceRate 
+})), null, 2)}
 
-Respond in JSON format with keys: topPerformingLayouts, deviceSpecificPatterns, conversionRateBenchmarks, recommendations.`;
+Return JSON:
+- topPerformingLayouts: [string]
+- deviceSpecificPatterns: {device: pattern}
+- conversionRateBenchmarks: {average: number, top10Percent: number}
+- recommendations: [string]`;
 
-    const insights = await llmService.generateJSON<CampaignInsights>(prompt, systemPrompt);
-    return insights;
+    try {
+      const insights = await llmService.generateJSON<CampaignInsights>(prompt, systemPrompt, 50000); // 50s timeout
+      return insights;
+    } catch (error) {
+      // FALLBACK: Calculate basic metrics without LLM
+      console.warn('Campaign analysis LLM failed, using calculated metrics:', error);
+      const avgConversion = campaignData.reduce((sum, d) => sum + d.conversionRate, 0) / campaignData.length;
+      const sorted = [...campaignData].sort((a, b) => b.conversionRate - a.conversionRate);
+      const top10Percent = sorted.slice(0, Math.ceil(campaignData.length * 0.1));
+      const top10Avg = top10Percent.reduce((sum, d) => sum + d.conversionRate, 0) / top10Percent.length;
+
+      return {
+        topPerformingLayouts: ['single-column', 'two-column'],
+        deviceSpecificPatterns: { 
+          mobile: campaignData.filter(d => d.deviceType === 'Mobile').length > 0 ? 'compact' : 'standard',
+          desktop: 'spacious'
+        },
+        conversionRateBenchmarks: { 
+          average: avgConversion || 5.0, 
+          top10Percent: top10Avg || 12.0 
+        },
+        recommendations: ['Focus on mobile-first design', 'A/B test CTAs', 'Optimize form length'],
+      };
+    }
   }
 
   async identifyTopPerformingPatterns(data: CampaignData[]): Promise<string[]> {

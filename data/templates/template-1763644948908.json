@@ -1,0 +1,40 @@
+{
+  "templateID": "template-1763644948908",
+  "templateName": "Test Template 1763644948902",
+  "templateVersion": "1.0.0",
+  "createdAt": "2025-11-20T13:22:28.908Z",
+  "updatedAt": "2025-11-20T13:22:28.908Z",
+  "description": "Template generated from campaign: Unknown",
+  "campaignObjective": "lead-gen",
+  "primaryConversionKPI": "5% sign-ups",
+  "targetAudience": "Test Audience",
+  "buyerPersonaKeywords": [
+    "test"
+  ],
+  "productServiceName": "Test Product",
+  "primaryOffer": "Free Trial",
+  "uniqueValueProposition": "Test UVP",
+  "top3To5Benefits": [
+    "Benefit 1"
+  ],
+  "featureList": [
+    "Feature 1"
+  ],
+  "emotionalTriggers": [
+    "trust"
+  ],
+  "objectionsToOvercome": [
+    "cost"
+  ],
+  "testimonials": [],
+  "trustIndicators": [],
+  "primaryCTAText": "Get Started",
+  "formFields": [],
+  "toneOfVoice": "friendly",
+  "pageLayoutPreference": "scroll",
+  "targetSEOKeywords": [
+    "test"
+  ],
+  "privacyPolicyURL": "https://example.com/privacy",
+  "gdprCCPAConsentText": "I agree"
+}

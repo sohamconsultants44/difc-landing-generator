@@ -21,37 +21,58 @@ export class DesignGeneratorAgent {
       layoutPreference?: string;
     }
   ): Promise<SectionDesign> {
-    const systemPrompt = `You are an expert React developer and UI/UX designer creating accessible, responsive components.`;
+    const systemPrompt = `Expert React/UI developer. Create accessible components.`;
 
-    const prompt = `Generate a ${sectionType} section component with the following requirements:
+    // SIMPLIFIED PROMPT - Focus on essentials
+    const contentStr = typeof requirements.content === 'string' 
+      ? requirements.content 
+      : JSON.stringify(requirements.content).substring(0, 500); // Limit content length
 
-Content:
-${JSON.stringify(requirements.content, null, 2)}
+    const primaryColor = requirements.brandGuidelines?.colors?.primary?.[0] || '#001E60';
+    const prompt = `Generate ${sectionType} React component:
+Content: ${contentStr}
+Colors: ${primaryColor}
+Layout: ${requirements.layoutPreference || 'responsive'}
 
-Brand Guidelines:
-- Primary Colors: ${requirements.brandGuidelines.colors.primary.join(', ')}
-- Typography: ${requirements.brandGuidelines.typography.headings.family.join(', ')}
-- Layout Preference: ${requirements.layoutPreference || 'responsive'}
+Return JSON:
+- component: React functional component code (TypeScript, Tailwind CSS)
+- styles: Tailwind classes used
+- layout: single-column|two-column|three-column|grid
+- accessibility: {ariaLabels: [], keyboardNavigation: true, colorContrast: true}
 
-Create a React component that:
-1. Uses Tailwind CSS for styling
-2. Follows DIFC brand guidelines
-3. Is fully responsive (mobile-first)
-4. Meets WCAG 2.1 AA accessibility standards
-5. Uses semantic HTML
-6. Includes proper ARIA labels
-7. Has good color contrast
+Keep component concise (<100 lines).`;
 
-Return JSON with:
-- component: The React component code as a string
-- styles: Tailwind CSS classes used
-- layout: Layout type
-- accessibility: Accessibility features
-
-Component should be a functional React component using TypeScript.`;
-
-    const design = await llmService.generateJSON<SectionDesign>(prompt, systemPrompt);
-    return design;
+    try {
+      const design = await llmService.generateJSON<SectionDesign>(prompt, systemPrompt, 60000); // 60s timeout
+      return design;
+    } catch (error) {
+      // FALLBACK: Return template component if LLM fails
+      console.warn('Design generation failed, using fallback template:', error);
+      return {
+        component: `export function ${sectionType.charAt(0).toUpperCase() + sectionType.slice(1)}Section({ content }: { content: any }) {
+  return (
+    <section className="py-12 px-4 bg-white">
+      <div className="max-w-6xl mx-auto">
+        <h2 className="text-3xl font-bold mb-4" style={{ color: '${primaryColor}' }}>{content?.headline || 'Section Title'}</h2>
+        <p className="text-gray-700 mb-6">{content?.bodyCopy || 'Content goes here'}</p>
+        {content?.cta && (
+          <button className="px-6 py-3 rounded text-white font-semibold" style={{ backgroundColor: '${primaryColor}' }}>
+            {content.cta}
+          </button>
+        )}
+      </div>
+    </section>
+  );
+}`,
+        styles: `bg-white py-12 px-4 max-w-6xl mx-auto`,
+        layout: 'single-column' as const,
+        accessibility: {
+          ariaLabels: [`${sectionType} section`],
+          keyboardNavigation: true,
+          colorContrast: true,
+        },
+      };
+    }
   }
 
   async applyBrandGuidelines(design: SectionDesign, guidelines: BrandGuidelines): Promise<SectionDesign> {

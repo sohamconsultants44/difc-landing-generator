@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import campaignsRouter from './routes/campaigns.route.js';
 import experimentsRouter from './routes/experiments.route.js';
 import insightsRouter from './routes/insights.route.js';
@@ -9,7 +11,17 @@ import generateRouter from './routes/generate.route.js';
 import templatesRouter from './routes/templates.route.js';
 import explanationRouter from './routes/explanation.route.js';
 
-dotenv.config();
+// Load .env from project root (not apps/api)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const rootDir = join(__dirname, '..', '..', '..');
+dotenv.config({ path: join(rootDir, '.env') });
+
+// Log LLM provider on startup
+console.log(`[API Server] LLM_PROVIDER: ${process.env.LLM_PROVIDER || 'ollama'}`);
+if (process.env.LLM_PROVIDER === 'mock') {
+  console.log(`[API Server] ⚡ Mock provider active - instant responses!`);
+}
 
 const app = express();
 const PORT = process.env.API_PORT || 3001;
@@ -39,6 +51,56 @@ app.get('/', (_req, res) => {
 // Health check endpoint
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', message: 'API is running' });
+});
+
+// Ollama health check endpoint
+app.get('/health/ollama', async (_req, res) => {
+  try {
+    // First check if Ollama API is accessible (fast check)
+    const ollamaCheck = await fetch('http://localhost:11434/api/tags').catch(() => null);
+    if (!ollamaCheck || !ollamaCheck.ok) {
+      return res.status(503).json({ 
+        status: 'error', 
+        ollama: 'not accessible',
+        error: 'Ollama API not responding',
+        troubleshooting: 'Check if Ollama is running: ollama list'
+      });
+    }
+
+    // Then try a very quick LLM test with longer timeout
+    const { llmService } = await import('./services/llm.service.js');
+    const testPrompt = 'Say "ok"';
+    const response = await Promise.race([
+      llmService.generate(testPrompt, undefined, 15000), // 15 second timeout (more realistic)
+      new Promise<string>((_, reject) => setTimeout(() => reject(new Error('timeout')), 15000))
+    ]);
+    res.json({ 
+      status: 'ok', 
+      ollama: 'connected',
+      model: process.env.OLLAMA_MODEL || 'phi3:latest',
+      response: response.substring(0, 50),
+      responseTime: '< 15s'
+    });
+  } catch (error) {
+    // If LLM call fails but API is accessible, still return partial success
+    const ollamaCheck = await fetch('http://localhost:11434/api/tags').catch(() => null);
+    if (ollamaCheck && ollamaCheck.ok) {
+      return res.json({ 
+        status: 'partial', 
+        ollama: 'api accessible but LLM slow',
+        model: process.env.OLLAMA_MODEL || 'phi3:latest',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        note: 'Ollama API is running but model response is slow. This is normal for first request.'
+      });
+    }
+    
+    res.status(503).json({ 
+      status: 'error', 
+      ollama: 'not responding',
+      error: error instanceof Error ? error.message : 'Unknown error',
+      troubleshooting: 'Check if Ollama is running: ollama list'
+    });
+  }
 });
 
 // API routes
