@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 255, 255, 255;
+  --background-end-rgb: 255, 255, 255;
+  --difc-primary: #001E60;
+  --difc-white: #FFFFFF;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-start-rgb));
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* DIFC Brand Guidelines */
+.difc-primary {
+  color: #001E60;
+}
+
+.bg-difc-primary {
+  background-color: #001E60;
+}
+
+.border-difc-primary {
+  border-color: #001E60;
+}
+
+/* Typography - DIFC Standards */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: 32px;
+}
+
+h2 {
+  font-size: 28px;
+}
+
+h3 {
+  font-size: 24px;
+}
+
+p, body {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+/* Accessibility */
+*:focus {
+  outline: 2px solid #001E60;
+  outline-offset: 2px;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}

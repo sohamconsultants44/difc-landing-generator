@@ -1,0 +1,43 @@
+{
+  "templateID": "template-1763634042788",
+  "templateName": "My First Template",
+  "templateVersion": "1.0.0",
+  "createdAt": "2025-11-20T10:20:42.788Z",
+  "updatedAt": "2025-11-20T10:20:42.788Z",
+  "description": "Template generated from campaign: Unknown",
+  "campaignObjective": "lead-gen",
+  "primaryConversionKPI": "5% sign-ups",
+  "targetAudience": "B2B SaaS companies",
+  "buyerPersonaKeywords": [
+    "enterprise",
+    "saas"
+  ],
+  "productServiceName": "AI Landing Page Generator",
+  "primaryOffer": "Free trial",
+  "uniqueValueProposition": "AI-powered landing pages",
+  "top3To5Benefits": [
+    "Fast",
+    "Easy",
+    "Effective"
+  ],
+  "featureList": [
+    "AI generation"
+  ],
+  "emotionalTriggers": [
+    "trust"
+  ],
+  "objectionsToOvercome": [
+    "cost"
+  ],
+  "testimonials": [],
+  "trustIndicators": [],
+  "primaryCTAText": "Start Free Trial",
+  "formFields": [],
+  "toneOfVoice": "friendly",
+  "pageLayoutPreference": "scroll",
+  "targetSEOKeywords": [
+    "landing page"
+  ],
+  "privacyPolicyURL": "https://example.com/privacy",
+  "gdprCCPAConsentText": "I agree"
+}

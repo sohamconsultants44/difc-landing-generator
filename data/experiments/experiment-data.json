@@ -1,0 +1,102 @@
+[
+  {
+    "Experiment Name": "Experiment ID",
+    "Lead Gen CTA Position Test": "EXP-2024-CTA-001"
+  },
+  {
+    "Experiment Name": "Owner",
+    "Lead Gen CTA Position Test": "Conversion Optimization Team"
+  },
+  {
+    "Experiment Name": "Hypothesis",
+    "Lead Gen CTA Position Test": "Making the lead generation CTA sticky (always visible) instead of in-page scrollable will increase conversion rates by reducing friction and maintaining constant visibility of the primary action"
+  },
+  {
+    "Experiment Name": "Start Date",
+    "Lead Gen CTA Position Test": 45488
+  },
+  {
+    "Experiment Name": "End Date",
+    "Lead Gen CTA Position Test": 45518
+  },
+  {
+    "Experiment Name": "Audience Targeted",
+    "Lead Gen CTA Position Test": "All website visitors to landing pages"
+  },
+  {
+    "Experiment Name": "Traffic Allocation",
+    "Lead Gen CTA Position Test": "50/50"
+  },
+  {
+    "Experiment Name": "Sample Size - Control (A)",
+    "Lead Gen CTA Position Test": 12847
+  },
+  {
+    "Experiment Name": "Sample Size - Variant (B)",
+    "Lead Gen CTA Position Test": 12953
+  },
+  {
+    "Experiment Name": "Control Description (A)",
+    "Lead Gen CTA Position Test": "Standard in-page CTA button that users must scroll to find - positioned after product description section"
+  },
+  {
+    "Experiment Name": "Variant Description (B)",
+    "Lead Gen CTA Position Test": "Sticky CTA button that remains fixed at bottom of screen and follows user as they scroll through page"
+  },
+  {
+    "Experiment Name": "Primary Metric Measured",
+    "Lead Gen CTA Position Test": "Lead Generation Conversion Rate"
+  },
+  {
+    "Experiment Name": "Secondary Metrics Measured",
+    "Lead Gen CTA Position Test": "Bounce Rate, Average Time on Page, Scroll Depth, Form Abandonment Rate"
+  },
+  {
+    "Experiment Name": "Control Result - Primary Metric",
+    "Lead Gen CTA Position Test": 0.0342
+  },
+  {
+    "Experiment Name": "Variant Result - Primary Metric",
+    "Lead Gen CTA Position Test": 0.0467
+  },
+  {
+    "Experiment Name": "Delta (Absolute %)",
+    "Lead Gen CTA Position Test": 0.0125
+  },
+  {
+    "Experiment Name": "Uplift (Relative %)",
+    "Lead Gen CTA Position Test": 0.365
+  },
+  {
+    "Experiment Name": "Statistical Significance Achieved",
+    "Lead Gen CTA Position Test": "Yes"
+  },
+  {
+    "Experiment Name": "P-Value",
+    "Lead Gen CTA Position Test": 0.0023
+  },
+  {
+    "Experiment Name": "Winning Variant",
+    "Lead Gen CTA Position Test": "B (Sticky CTA)"
+  },
+  {
+    "Experiment Name": "Decision Taken",
+    "Lead Gen CTA Position Test": "Implement sticky CTA across all landing pages"
+  },
+  {
+    "Experiment Name": "Key Insights and Interpretation",
+    "Lead Gen CTA Position Test": "Sticky CTA significantly outperformed standard placement with 36.5% relative uplift. Users appreciated constant visibility of conversion opportunity. Secondary metrics showed improved engagement with 15% higher scroll depth, suggesting users felt more confident exploring content knowing CTA was always accessible."
+  },
+  {
+    "Experiment Name": "Projected Business Impact",
+    "Lead Gen CTA Position Test": "Monthly lead volume projected to increase from 2850 to 3890 leads (+36.5%)."
+  },
+  {
+    "Experiment Name": "Limitations & Notes",
+    "Lead Gen CTA Position Test": "Test only ran on desktop and mobile web - tablet users excluded due to technical constraints. Some users reported sticky element occasionally covering important content on smaller mobile screens."
+  },
+  {
+    "Experiment Name": "Future Recommendations",
+    "Lead Gen CTA Position Test": "Test different sticky CTA designs and positions. Consider A/B testing sticky vs floating action button styles. Test impact on different audience segments separately."
+  }
+]
