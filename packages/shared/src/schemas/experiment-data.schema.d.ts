@@ -1,0 +1,52 @@
+import { z } from 'zod';
+export declare const ExperimentDataSchema: z.ZodObject<{
+    experimentID: z.ZodString;
+    experimentName: z.ZodString;
+    startDate: z.ZodString;
+    endDate: z.ZodString;
+    variant: z.ZodEnum<["A", "B", "C"]>;
+    testedElement: z.ZodString;
+    elementType: z.ZodEnum<["headline", "cta", "image", "form", "layout"]>;
+    description: z.ZodString;
+    visitors: z.ZodNumber;
+    conversions: z.ZodNumber;
+    conversionRate: z.ZodNumber;
+    confidenceLevel: z.ZodNumber;
+    winner: z.ZodBoolean;
+    insights: z.ZodString;
+    recommendations: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    conversionRate: number;
+    experimentID: string;
+    experimentName: string;
+    startDate: string;
+    endDate: string;
+    variant: "A" | "B" | "C";
+    testedElement: string;
+    elementType: "headline" | "cta" | "image" | "form" | "layout";
+    description: string;
+    visitors: number;
+    conversions: number;
+    confidenceLevel: number;
+    winner: boolean;
+    insights: string;
+    recommendations: string;
+}, {
+    conversionRate: number;
+    experimentID: string;
+    experimentName: string;
+    startDate: string;
+    endDate: string;
+    variant: "A" | "B" | "C";
+    testedElement: string;
+    elementType: "headline" | "cta" | "image" | "form" | "layout";
+    description: string;
+    visitors: number;
+    conversions: number;
+    confidenceLevel: number;
+    winner: boolean;
+    insights: string;
+    recommendations: string;
+}>;
+export type ExperimentData = z.infer<typeof ExperimentDataSchema>;
+//# sourceMappingURL=experiment-data.schema.d.ts.map
